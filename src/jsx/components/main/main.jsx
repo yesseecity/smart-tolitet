@@ -1,24 +1,29 @@
 import React,{useEffect} from 'react';
 import './main.scss'
-import styled from 'styled-components';
 
-const H2o = styled.h1` // => Define  <h1> style，name: H2o
-  color: green;
-  font-size: 20px;
-`
+import {Building} from '../building/building.jsx';
 
+export class Main extends React.Component {
+  constructor(props) {
+    // console.log('Lifecycle - constructor')
+    super(props);
 
+  }
+  componentDidMount() {
+    // console.log('Lifecycle - componentDidMount');
 
-export function Main() {
-    useEffect(()=>{
-      
-    },[]);
+  }
+  componentDidUpdate() {
+    // console.log('Lifecycle - componentDidUpdate');
+    
+  }
+
+  render() {
+    // console.log('Lifecycle - render')
     return (
-        <>
-            <h1 className="h1"> This is Sample React Page </h1>
-            <div className="">
-                <H2o>This line is styled-components </H2o>
-            </div>
-        </>
+      <div className="main">
+          <Building />
+      </div>
     );
+  }
 }

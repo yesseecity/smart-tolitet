@@ -49,6 +49,10 @@ module.exports = {
             {
                 from: './src/html/index.html',
                 to: './'
+            },
+            {
+                from: './src/imgs/',
+                to: './imgs'
             }
         ])
     ]

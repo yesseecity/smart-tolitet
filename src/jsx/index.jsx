@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
+  BrowserRouter as Router,
+  Switch,
+  Route,
 } from "react-router-dom";
 
 // components
@@ -16,45 +16,26 @@ import {MemberContext, defaultMember} from './context/member.jsx';
 import {ThemeContext} from './context/theme.jsx';
 
 function Index(props) {
-    return (
+  return (
+  <React.StrictMode>
     <Router>
-        <MemberContext.Provider value={defaultMember}>
-        <ThemeContext.Provider value="dark">
-            <Switch>
-                <Route path="/class" exact>
-                    <YourCalss/>
-                </Route>
-                <Route path="/class/consumer" exact>
-                    <MemberContext.Consumer>
-                        {
-                            (member) => {
-                                return <ThemeContext.Consumer>
-                                    {
-                                        (theme)=>{
-                                            return <YourCalss member={member} theme={theme} win={'3.1'}/>
-                                        }
-                                    }
-                                </ThemeContext.Consumer>
-                            }
-                        }
-                    </MemberContext.Consumer>
-                </Route>
-                <Route path="/func" exact>
-                    <FunctionName />
-                </Route>
-                <Route path="/">
-                    <div className="wrapper main">
-                        <Main/>
-                    </div>
-                </Route>
-            </Switch>
-        </ThemeContext.Provider>
-        </MemberContext.Provider>
+      <Switch>
+        <Route path="/class" exact>
+          <YourCalss/>
+        </Route>
+        <Route path="/func" exact>
+          <FunctionName />
+        </Route>
+        <Route path="/">
+          <Main/>
+        </Route>
+      </Switch>
     </Router>
-    )
+  </React.StrictMode>
+  )
 }
 
 ReactDOM.render(
-    <Index/>,
-    document.getElementById('react-root')
+  <Index/>,
+  document.getElementById('react-root')
 );
