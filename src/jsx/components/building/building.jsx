@@ -42,7 +42,8 @@ export class Building extends React.Component {
 			this.renderer.domElement.style.position = 'absolute';
       this.renderer.domElement.style.top = '0px';
 
-      this.camera.position.set(140, 180, 260);
+      // this.camera.position.set(140, 180, 260);
+      this.camera.position.set(0, 180, 260);
     } else {
       
       this.scene.background = new THREE.Color("rgb(255, 255, 255)");
@@ -92,20 +93,19 @@ export class Building extends React.Component {
       this.createPath()
       
       for(let id = 0; id < this.totalFloor; id++) {
-        const dom = document.getElementById('floor-'+id.toString())
-        // dom.addEventListener('mouseover', (e)=>{console.log('hover: ', e)}, false)
-        dom.addEventListener('mouseenter', (e)=>{this.mouseHover(e)}, false)
-        dom.addEventListener('mouseleave', (e)=>{this.mouseHover(e)}, false)
+        const dom = document.getElementById('floor-'+id.toString());
+        dom.addEventListener('mouseenter', (e)=>{this.mouseHover(e)}, false);
+        dom.addEventListener('mouseleave', (e)=>{this.mouseHover(e)}, false);
+        dom.addEventListener('click', (e)=>{this.mouseClick(e)}, false);
         const floorObj = new CSS3DObject(dom);
         const pos = this.path.getPoint( 1/7*id );
         console.log(pos)
         floorObj.position.set(pos.x, pos.y, pos.z);
-        floorObj.rotation.set(-3.14*0.5, 0, 0);
+        floorObj.rotation.set(-3.14*0.5, 0, -0.6);
         floorObj.scale.set(scaleRay, scaleRay, scaleRay);
         
         this.scene.add(floorObj);
         this.floorArray.push({'obj': floorObj, 'oriPose': Object.assign({}, floorObj.position)});
-        // this.floorArray.push(floorObj)
       }
       this.camera.lookAt(0, 50, 0);
 
@@ -225,61 +225,25 @@ export class Building extends React.Component {
 
     switch (e.type) {
       case 'mouseenter':
-        console.log(mode)
         var delta = 0;
         delta = Math.abs(this.floorArray[0].obj.position.y - this.floorArray[1].obj.position.y);
         this.delta = delta;
 
-
         switch (mode) {
           case "top":
             this.tween(
-              this.floorArray[targetIdx-1].obj.position, 
-              {'y': this.floorArray[targetIdx-1].oriPose.y-delta*0.5},
-              ()=>{
-                if (this.floorArray[targetIdx-1].obj.position.y.toFixed(5) > (this.floorArray[targetIdx-1].oriPose.y-delta*0.5).toFixed(5)) {
-                  setTimeout(() => {
-                    this.animate()
-                  }, 5);
-                }
-              }
-            );
+              this.floorArray[targetIdx-1].obj.position, {'y': this.floorArray[targetIdx-1].oriPose.y-delta*0.5});
             break;
           case "middle":
             this.tween(
-              this.floorArray[targetIdx-1].obj.position, 
-              {'y': this.floorArray[targetIdx-1].oriPose.y-delta*0.5},
-              ()=>{
-                if (this.floorArray[targetIdx-1].obj.position.y.toFixed(5) > (this.floorArray[targetIdx-1].oriPose.y-delta*0.5).toFixed(5)) {
-                  setTimeout(() => {
-                    this.animate()
-                  }, 5);
-                }
-              }
-            );
+              this.floorArray[targetIdx-1].obj.position, {'y': this.floorArray[targetIdx-1].oriPose.y-delta*0.5});
 
             this.tween(
-              this.floorArray[targetIdx+1].obj.position, 
-              {'y': this.floorArray[targetIdx+1].oriPose.y+delta*0.5},
-               ()=>{
-              if (this.floorArray[targetIdx+1].obj.position.y.toFixed(5) < (this.floorArray[targetIdx+1].oriPose.y+delta*0.5).toFixed(5)) {
-                setTimeout(() => {
-                  this.animate()
-                }, 0);
-              }
-            });
+              this.floorArray[targetIdx+1].obj.position, {'y': this.floorArray[targetIdx+1].oriPose.y+delta*0.5});
             break;
           case "bottom":
             this.tween(
-              this.floorArray[targetIdx+1].obj.position, 
-              {'y': this.floorArray[targetIdx+1].oriPose.y+delta*0.5},
-               ()=>{
-              if (this.floorArray[targetIdx+1].obj.position.y.toFixed(5) < (this.floorArray[targetIdx+1].oriPose.y+delta*0.5).toFixed(5)) {
-                setTimeout(() => {
-                  this.animate()
-                }, 0);
-              }
-            });
+              this.floorArray[targetIdx+1].obj.position,{'y': this.floorArray[targetIdx+1].oriPose.y+delta*0.5});
         };
 
         this.animate()
@@ -287,38 +251,14 @@ export class Building extends React.Component {
       case 'mouseleave':
         switch (mode) {
           case "top":
-            this.tween(this.floorArray[targetIdx-1].obj.position, this.floorArray[targetIdx-1].oriPose, ()=>{
-              if (this.floorArray[targetIdx-1].obj.position.y.toFixed(5) < this.floorArray[targetIdx-1].oriPose.y.toFixed(5)) {
-                setTimeout(() => {
-                  this.animate()
-                }, 0);
-              }
-            });
+            this.tween(this.floorArray[targetIdx-1].obj.position, this.floorArray[targetIdx-1].oriPose);
             break;
           case "middle":
-            this.tween(this.floorArray[targetIdx-1].obj.position, this.floorArray[targetIdx-1].oriPose, ()=>{
-              if (this.floorArray[targetIdx-1].obj.position.y.toFixed(5) < this.floorArray[targetIdx-1].oriPose.y.toFixed(5)) {
-                setTimeout(() => {
-                  this.animate()
-                }, 0);
-              }
-            });
-            this.tween(this.floorArray[targetIdx+1].obj.position, this.floorArray[targetIdx+1].oriPose, ()=>{
-              if (this.floorArray[targetIdx+1].obj.position.y.toFixed(5) > this.floorArray[targetIdx+1].oriPose.y.toFixed(5)) {
-                setTimeout(() => {
-                  this.animate()
-                }, 0);
-              }
-            });
+            this.tween(this.floorArray[targetIdx-1].obj.position, this.floorArray[targetIdx-1].oriPose);
+            this.tween(this.floorArray[targetIdx+1].obj.position, this.floorArray[targetIdx+1].oriPose);
             break;
           case "bottom":
-            this.tween(this.floorArray[targetIdx+1].obj.position, this.floorArray[targetIdx+1].oriPose, ()=>{
-              if (this.floorArray[targetIdx+1].obj.position.y.toFixed(5) > this.floorArray[targetIdx+1].oriPose.y.toFixed(5)) {
-                setTimeout(() => {
-                  this.animate()
-                }, 0);
-              }
-            });
+            this.tween(this.floorArray[targetIdx+1].obj.position, this.floorArray[targetIdx+1].oriPose);
             break;
         }
 
@@ -326,12 +266,49 @@ export class Building extends React.Component {
         break;
     }
   }
+  mouseClick(e) {
+    e.stopPropagation();
+    console.log("clck")
+    console.log('target' , e.target)
+    var targetIdx = -1;
+    if (e.target.id == '' && e.target.parentElement.id.indexOf('floor-')>-1 ) {
+    // if (e.target.id == '' ) {
+      console.log(e.target.parentElement.id)
+      targetIdx = parseInt(e.target.parentElement.id.replace('floor-', ''));;
+    } else {
+      targetIdx = parseInt(e.target.id.replace('floor-', ''));;      
+    }
+    console.log('targetIdx: ', targetIdx)
+    const floorObj = this.floorArray[targetIdx].obj;
+    // floorObj.position.set(0, 100, 90);
+    // floorObj.rotation.set(-0.465, 0, 0);
+
+    this.tween(
+      floorObj, {
+      'position': {'x':0, 'y':100, 'z':90}
+      },
+      ()=>{
+        if (floorObj.position.y == 100 && floorObj.position.z == 90) {
+          this.tween(
+            floorObj, {
+            'rotation': {'_x':-0.465, 'y':0, 'z':0}
+            }
+          )
+        }
+      }
+    )
+    this.animate();
+
+  }
   tween(from, to, callback) {
     new TWEEN.Tween(from)
     .to(to, 200)
     .easing(TWEEN.Easing.Quadratic.Out)
     .onUpdate(()=>{
-      callback()
+      if (callback) callback();
+      setTimeout(() => {
+        this.animate()
+      }, 0);
     })
     .start();
   }
