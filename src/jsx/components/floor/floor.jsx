@@ -6,6 +6,8 @@ export class Floor extends React.Component {
   constructor(props) {
     // console.log('Lifecycle - constructor')
     super(props);
+
+    this.floorDom = React.createRef();
   }
   componentDidMount() {
     // console.log('Lifecycle - componentDidMount');
@@ -13,11 +15,20 @@ export class Floor extends React.Component {
   componentDidUpdate() {
     // console.log('Lifecycle - componentDidUpdate');
   }
+  onMouseEnter (e) {
+    e.stopPropagation();
+    console.group('onMouseEnter');
+    console.log('onMouseEnter',e );
+    console.log(e.target)
+    console.log(e.eventPhase)
+    console.groupEnd('onMouseEnter');
+    // this.props.mouseHover(e)
+  }
 
   render() {
     // console.log('Lifecycle - render')
     return (
-      <div className="floor" id={"floor-"+ this.props.id}>
+      <div className="floor" id={"floor-"+ this.props.id} ref={this.floorDom} >
           {/* <img src="./imgs/floor-12.jpg" alt="{this.props.id+’地圖’}"/> */}
           <div className="toilet-ladies alert">
             <svg height="210" width="200">

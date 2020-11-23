@@ -1,9 +1,8 @@
 import React from 'react';
 import axios from 'axios';
-import TWEEN from '@tweenjs/tween.js';
+import TWEEN from '@tweenjs/tween.js/dist/tween.esm.js';
 
 import * as THREE from 'three';
-// import {Scene} from 'three';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -16,14 +15,14 @@ export class Building extends React.Component {
   constructor(props) {
     // console.log('Lifecycle - constructor')
     super(props);
-    
-    this.floorArray = [...Array(8).keys()];
+
+    this.totalFloor = 8;
+    this.floorArray = [];
 
     this.scene = new THREE.Scene();
     window.scene = this.scene;
 
     this.camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 0.1, 2000 );
-    // this.camera = new THREE.OrthographicCamera( window.innerWidth/-2, window.innerWidth/2, window.innerHeight/2, window.innerHeight/-2, 1, 1000 );
     window.camera = this.camera;
     
     this.rendererType = 'css2d';
@@ -54,10 +53,19 @@ export class Building extends React.Component {
     }
     this.renderer.setSize( window.innerWidth, window.innerHeight );
     
-    const controls = new OrbitControls(this.camera, this.renderer.domElement );
-    controls.minDistance = 5;
-    controls.maxDistance = 10000;
+    // const controls = new OrbitControls(this.camera, this.renderer.domElement );
+    // controls.minDistance = 5;
+    // controls.maxDistance = 10000;
+
+
+
     window.addEventListener( 'resize', ()=>{this.windowResize()}, false );
+
+    // if (navigator.userAgent.indexOf("Firefox") > -1) {
+    //   window.addEventListener('DOMMouseScroll', (e)=>{this.mouseScroll(e)}, false );
+    // } else {
+    //   window.addEventListener('mousewheel', (e)=>{this.mouseScroll(e)}, false );
+    // }
   }
   componentDidMount() {
     console.log('Lifecycle - componentDidMount');
@@ -81,14 +89,23 @@ export class Building extends React.Component {
         
     } else if (this.rendererType == 'css3d') {
       var scaleRay = 0.2;
-
-      this.floorObjArray = [];
-      for(let id of this.floorArray) {
-        const floorObj = new CSS3DObject(document.getElementById('floor-'+id.toString()));
-        floorObj.position.set(0, 15*id, 0);
+      this.createPath()
+      
+      for(let id = 0; id < this.totalFloor; id++) {
+        const dom = document.getElementById('floor-'+id.toString())
+        // dom.addEventListener('mouseover', (e)=>{console.log('hover: ', e)}, false)
+        dom.addEventListener('mouseenter', (e)=>{this.mouseHover(e)}, false)
+        dom.addEventListener('mouseleave', (e)=>{this.mouseHover(e)}, false)
+        const floorObj = new CSS3DObject(dom);
+        const pos = this.path.getPoint( 1/7*id );
+        console.log(pos)
+        floorObj.position.set(pos.x, pos.y, pos.z);
         floorObj.rotation.set(-3.14*0.5, 0, 0);
         floorObj.scale.set(scaleRay, scaleRay, scaleRay);
+        
         this.scene.add(floorObj);
+        this.floorArray.push({'obj': floorObj, 'oriPose': Object.assign({}, floorObj.position)});
+        // this.floorArray.push(floorObj)
       }
       this.camera.lookAt(0, 50, 0);
 
@@ -106,23 +123,22 @@ export class Building extends React.Component {
   componentDidUpdate() {
     // console.log('Lifecycle - componentDidUpdate');
   }
-  windowResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
-
-    console.log('resize')
-    this.animate();
-  }
   animate() {
-    console.log('anime');
+    // console.log('anime');
     this.renderer.render(this.scene, this.camera );
+    
+    TWEEN.update()
 
-    setTimeout(() => {
-      requestAnimationFrame( ()=>{this.animate()} );
-      
-    }, 100);
+    // setTimeout(() => {
+    //   requestAnimationFrame( ()=>{this.animate()} );
+    // }, 200);
 
+  }
+  createPath() {
+    var lineCurve3 = new THREE.LineCurve3(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 100, 0));
+    const path = new THREE.CurvePath();
+    path.add(lineCurve3);
+    this.path = path;
   }
   drawCube () {
     const geometry = new THREE.BoxGeometry();
@@ -132,12 +148,8 @@ export class Building extends React.Component {
     window.cube = cube;
   }
   drawPath () {
-    var lineCurve3 = new THREE.LineCurve3(new THREE.Vector3(0.2, 0.2, 0), new THREE.Vector3(0.2, 0.2, 10));
+    this.createPath()
 
-    const path = new THREE.CurvePath();
-    path.add(lineCurve3);
-
-    // const points = path.getPoints(4);
     const points = path.getPoints( 10 );
     console.log(points)
     for(let i=0;i<9; i+=0.1) {
@@ -177,57 +189,166 @@ export class Building extends React.Component {
     const axesHelper = new THREE.AxesHelper( 5 );
     scene.add( axesHelper );
   }
-  apiAxiosGet() {
-    axios.get('http://httpbin.org/get')
-      .then((response)=>{
-        console.log('response: ', response)
-      })
-      .catch((error)=>{
-        console.error('error: ', error);
-      });
+  windowResize() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
+
+    console.log('resize')
+    this.animate();
   }
-  apiAxiosPost() {
-    var body = {
-      firstName: 'testName',
-      lastName: 'testLastName'
-    };
+  mouseScroll(e) {
+    let delta = 3;
+    if (navigator.userAgent.indexOf("Firefox") > -1) {
+      delta = event.detail*-40;
+    } else {
+      delta = event.wheelDelta;
+    }
+    console.log('mouse scroll: ', delta );
+  }
+  mouseHover(e) {
+    e.stopPropagation();
+    
+    const targetIdx = parseInt(e.target.id.replace('floor-', ''));;
+    const floorObj = this.floorArray[targetIdx].obj;
 
-    // for header Content-Type is application/json
-    axios.post('http://httpbin.org/post', body)
-      .then((response)=>{
-        console.log('response: ', response);
-      })
-      .catch((error)=>{
-        console.error('error: ', error);
-      });
+    let mode = "";
+    if (targetIdx == this.floorArray.length-1) {
+      // floor on the top
+      mode = "top";
+    } else if (targetIdx == 0) {
+      // floor on the bottom
+      mode = "bottom";
+    } else {
+      mode = "middle"
+    }
 
-    // for header Content-Type is application/x-www-form-urlencoded
-    var params = new URLSearchParams();
-    params.append('user',JSON.stringify(body))
-    axios.post('http://httpbin.org/post', params);
+    switch (e.type) {
+      case 'mouseenter':
+        console.log(mode)
+        var delta = 0;
+        delta = Math.abs(this.floorArray[0].obj.position.y - this.floorArray[1].obj.position.y);
+        this.delta = delta;
+
+
+        switch (mode) {
+          case "top":
+            this.tween(
+              this.floorArray[targetIdx-1].obj.position, 
+              {'y': this.floorArray[targetIdx-1].oriPose.y-delta*0.5},
+              ()=>{
+                if (this.floorArray[targetIdx-1].obj.position.y.toFixed(5) > (this.floorArray[targetIdx-1].oriPose.y-delta*0.5).toFixed(5)) {
+                  setTimeout(() => {
+                    this.animate()
+                  }, 5);
+                }
+              }
+            );
+            break;
+          case "middle":
+            this.tween(
+              this.floorArray[targetIdx-1].obj.position, 
+              {'y': this.floorArray[targetIdx-1].oriPose.y-delta*0.5},
+              ()=>{
+                if (this.floorArray[targetIdx-1].obj.position.y.toFixed(5) > (this.floorArray[targetIdx-1].oriPose.y-delta*0.5).toFixed(5)) {
+                  setTimeout(() => {
+                    this.animate()
+                  }, 5);
+                }
+              }
+            );
+
+            this.tween(
+              this.floorArray[targetIdx+1].obj.position, 
+              {'y': this.floorArray[targetIdx+1].oriPose.y+delta*0.5},
+               ()=>{
+              if (this.floorArray[targetIdx+1].obj.position.y.toFixed(5) < (this.floorArray[targetIdx+1].oriPose.y+delta*0.5).toFixed(5)) {
+                setTimeout(() => {
+                  this.animate()
+                }, 0);
+              }
+            });
+            break;
+          case "bottom":
+            this.tween(
+              this.floorArray[targetIdx+1].obj.position, 
+              {'y': this.floorArray[targetIdx+1].oriPose.y+delta*0.5},
+               ()=>{
+              if (this.floorArray[targetIdx+1].obj.position.y.toFixed(5) < (this.floorArray[targetIdx+1].oriPose.y+delta*0.5).toFixed(5)) {
+                setTimeout(() => {
+                  this.animate()
+                }, 0);
+              }
+            });
+        };
+
+        this.animate()
+        break;
+      case 'mouseleave':
+        switch (mode) {
+          case "top":
+            this.tween(this.floorArray[targetIdx-1].obj.position, this.floorArray[targetIdx-1].oriPose, ()=>{
+              if (this.floorArray[targetIdx-1].obj.position.y.toFixed(5) < this.floorArray[targetIdx-1].oriPose.y.toFixed(5)) {
+                setTimeout(() => {
+                  this.animate()
+                }, 0);
+              }
+            });
+            break;
+          case "middle":
+            this.tween(this.floorArray[targetIdx-1].obj.position, this.floorArray[targetIdx-1].oriPose, ()=>{
+              if (this.floorArray[targetIdx-1].obj.position.y.toFixed(5) < this.floorArray[targetIdx-1].oriPose.y.toFixed(5)) {
+                setTimeout(() => {
+                  this.animate()
+                }, 0);
+              }
+            });
+            this.tween(this.floorArray[targetIdx+1].obj.position, this.floorArray[targetIdx+1].oriPose, ()=>{
+              if (this.floorArray[targetIdx+1].obj.position.y.toFixed(5) > this.floorArray[targetIdx+1].oriPose.y.toFixed(5)) {
+                setTimeout(() => {
+                  this.animate()
+                }, 0);
+              }
+            });
+            break;
+          case "bottom":
+            this.tween(this.floorArray[targetIdx+1].obj.position, this.floorArray[targetIdx+1].oriPose, ()=>{
+              if (this.floorArray[targetIdx+1].obj.position.y.toFixed(5) > this.floorArray[targetIdx+1].oriPose.y.toFixed(5)) {
+                setTimeout(() => {
+                  this.animate()
+                }, 0);
+              }
+            });
+            break;
+        }
+
+        this.animate()
+        break;
+    }
+  }
+  tween(from, to, callback) {
+    new TWEEN.Tween(from)
+    .to(to, 200)
+    .easing(TWEEN.Easing.Quadratic.Out)
+    .onUpdate(()=>{
+      callback()
+    })
+    .start();
   }
   renderFloor() {
     let domList = [];
-    for (let floorId of this.floorArray) {
-      console.log('>>>>>', floorId)
-      domList.push(<Floor id={floorId.toString()}/>) 
+
+    for(let floorId = 0; floorId < this.totalFloor; floorId++) {
+      domList.push(<Floor id={floorId.toString()} key={"floor-"+floorId.toString()} />) ;
     }
-    // console.log(domList)
-    console.log(this.floorArray)
     return domList;
   }
   render() {
     // console.log('Lifecycle - render')
     return (
       <div className="building" id="sceneDom">
-        {/* <h1>building</h1> */}
-        
         <div className="scene-elements">
           {this.renderFloor()}
-          {/* <Floor id="1" />
-          <Floor id="2" />
-          <Floor id="3" />
-          <Floor id="4" /> */}
         </div>
       </div>
     );
