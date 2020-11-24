@@ -1,4 +1,4 @@
-$img-width: 500px;
+$img-width: 600px;
 
 %hover{
     &:hover{
@@ -9,6 +9,7 @@ $img-width: 500px;
 .floor {
     width: $img-width;
     border: 1px solid transparent;
+    user-select: none;
     @extend %hover;
 
     &#floor-0{
@@ -62,56 +63,10 @@ img {
 
 .toilet-ladies {
     position: absolute;
-    width: 42px;
-    height: 42px;
-    right: 81px;
-    top: 195px;
-    overflow: hidden;
-    opacity: 1.0;
-
-    // border: 2px solid red;
-    // border-bottom-left-radius: 100%;
-    // border-width: 0px 0px 2px 2px;
-    opacity: 1.0;
-    // &::before{
-    //     content: "";
-    //     position: absolute;
-    //     width: 38px;
-    //     height: 36px;
-    //     top: 0px;
-    //     left: 0px;
-
-    //     border-style: solid;
-    //     border-color: red;
-    //     border-width: 2px 2px 0px 0px;
-    // }
-    // &::after {
-    //     content: "";
-    //     position: absolute;
-    //     width: 21px;
-    //     height: 19px;
-    //     top: 0px;
-    //     right: 0px;
-        
-    //     border-left: 2px solid red;
-    //     border-bottom: 2px solid red;
-    //     border-top: 2px solid white;
-    //     border-right: 2px solid white;
-    //     border-bottom-left-radius: 100%;
-    // }
-    &.alert{
-        animation-name: twinkling;
-        animation-duration: 0.5s;
-        animation-iteration-count: infinite;
-    }
-}
-
-.toilet-gentlemen {
-    position: absolute;
-    width: 41px;
-    height: 41px;
-    right: 40px;
-    top: 205px;
+    width: 52px;
+    height: 47px;
+    left: 451px;
+    top: 234px;
     overflow: hidden;
     opacity: 0.0;
     &.alert{
@@ -119,4 +74,37 @@ img {
         animation-duration: 0.5s;
         animation-iteration-count: infinite;
     }
+    svg {
+        height: 210px;
+        width: 200px;
+    }
+}
+
+.toilet-gentlemen {
+    position: absolute;
+    width: 48px;
+    height: 36px;
+    top: 246px;
+    left: 502px;
+    overflow: hidden;
+    opacity: 0.0;
+    &.alert{
+        animation-name: twinkling;
+        animation-duration: 0.5s;
+        animation-iteration-count: infinite;
+    }
+    svg {
+        height: 210px;
+        width: 200px;
+    }
+}
+
+.cross{
+    position: absolute;
+    width: 37px;
+    height: 37px;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    overflow: hidden;
 }

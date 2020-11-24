@@ -70,7 +70,8 @@ export class Building extends React.Component {
   }
   componentDidMount() {
     console.log('Lifecycle - componentDidMount');
-    window.sceneDom.appendChild( this.renderer.domElement );
+    // window.sceneDom.appendChild( this.renderer.domElement );
+    window.sceneDom.prepend( this.renderer.domElement );
 
     if (this.rendererType == 'css2d') {
       const floor2Obj = new CSS2DObject(document.getElementById('floor-2'));
@@ -92,14 +93,14 @@ export class Building extends React.Component {
       var scaleRay = 0.2;
       this.createPath()
       
-      for(let id = 0; id < this.totalFloor; id++) {
-        const dom = document.getElementById('floor-'+id.toString());
-        dom.addEventListener('mouseenter', (e)=>{this.mouseHover(e)}, false);
-        dom.addEventListener('mouseleave', (e)=>{this.mouseHover(e)}, false);
-        dom.addEventListener('click', (e)=>{this.mouseClick(e)}, false);
+      for(let floorIdx = 0; floorIdx < this.totalFloor; floorIdx++) {
+        const dom = document.getElementById('floor-'+floorIdx.toString());
+        dom.addEventListener('mouseenter', (e)=>{this.mouseHover(e, floorIdx)}, false);
+        dom.addEventListener('mouseleave', (e)=>{this.mouseHover(e, floorIdx)}, false);
+        // dom.addEventListener('click', (e)=>{this.expandFloor(e, floorIdx)}, false);
+
         const floorObj = new CSS3DObject(dom);
-        const pos = this.path.getPoint( 1/7*id );
-        console.log(pos)
+        const pos = this.path.getPoint( 1/7*floorIdx );
         floorObj.position.set(pos.x, pos.y, pos.z);
         floorObj.rotation.set(-3.14*0.5, 0, -0.6);
         floorObj.scale.set(scaleRay, scaleRay, scaleRay);
@@ -124,7 +125,6 @@ export class Building extends React.Component {
     // console.log('Lifecycle - componentDidUpdate');
   }
   animate() {
-    // console.log('anime');
     this.renderer.render(this.scene, this.camera );
     
     TWEEN.update()
@@ -206,10 +206,12 @@ export class Building extends React.Component {
     }
     console.log('mouse scroll: ', delta );
   }
-  mouseHover(e) {
+  // 展開浮動
+  mouseHover(e, idx) {
     e.stopPropagation();
-    
-    const targetIdx = parseInt(e.target.id.replace('floor-', ''));;
+    e.preventDefault();
+    if (idx == undefined) return;
+    const targetIdx = idx;
     const floorObj = this.floorArray[targetIdx].obj;
 
     let mode = "";
@@ -266,29 +268,19 @@ export class Building extends React.Component {
         break;
     }
   }
-  mouseClick(e) {
+  // 展開樓層
+  expandFloor(e, floorIdx) {
     e.stopPropagation();
-    console.log("clck")
-    console.log('target' , e.target)
-    var targetIdx = -1;
-    if (e.target.id == '' && e.target.parentElement.id.indexOf('floor-')>-1 ) {
-    // if (e.target.id == '' ) {
-      console.log(e.target.parentElement.id)
-      targetIdx = parseInt(e.target.parentElement.id.replace('floor-', ''));;
-    } else {
-      targetIdx = parseInt(e.target.id.replace('floor-', ''));;      
-    }
-    console.log('targetIdx: ', targetIdx)
-    const floorObj = this.floorArray[targetIdx].obj;
-    // floorObj.position.set(0, 100, 90);
-    // floorObj.rotation.set(-0.465, 0, 0);
+    e.preventDefault();
+    if (floorIdx == undefined) return;
+    const floorObj = this.floorArray[floorIdx].obj;
 
     this.tween(
       floorObj, {
-      'position': {'x':0, 'y':100, 'z':90}
+      'position': {'x':0, 'y':110, 'z':120}
       },
       ()=>{
-        if (floorObj.position.y == 100 && floorObj.position.z == 90) {
+        if (floorObj.position.y == 110 && floorObj.position.z == 120) {
           this.tween(
             floorObj, {
             'rotation': {'_x':-0.465, 'y':0, 'z':0}
@@ -298,7 +290,38 @@ export class Building extends React.Component {
       }
     )
     this.animate();
+  }
+  resetFloor(floorIdx) {
+    var floorObj = this.floorArray[floorIdx].obj;
+    var oriPose = this.floorArray[floorIdx].oriPose;
+    console.log('resetFloor: ', floorIdx)
 
+    var inOrigin = [];
+    for (let axis of Object.keys(oriPose)) {
+      // console.log(floorObj.position[axis] == oriPose[axis])
+      inOrigin.push(floorObj.position[axis] == oriPose[axis])
+    }
+    
+    if (inOrigin.indexOf(false)==-1){
+      console.log('return')
+      return
+    }
+    this.tween(
+      floorObj, {
+      'rotation': {'_x':-1.57, '_y':0, '_z':-0.6}
+      },
+      ()=>{
+        floorObj.rotation.set(floorObj.rotation._x, floorObj.rotation._y, floorObj.rotation._z)
+        if (floorObj.rotation._x == -1.57 && floorObj.rotation.z == -0.6) {
+          this.tween(
+            floorObj, {
+              'position': oriPose
+            }
+          )
+        }
+      }
+    )
+    this.animate();
   }
   tween(from, to, callback) {
     new TWEEN.Tween(from)
@@ -315,8 +338,14 @@ export class Building extends React.Component {
   renderFloor() {
     let domList = [];
 
-    for(let floorId = 0; floorId < this.totalFloor; floorId++) {
-      domList.push(<Floor id={floorId.toString()} key={"floor-"+floorId.toString()} />) ;
+    for(let floorIdx = 0; floorIdx < this.totalFloor; floorIdx++) {
+      domList.push(
+      <Floor 
+        id={floorIdx.toString() }
+        key={"floor-"+floorIdx.toString() } 
+        resetFloor={()=>{this.resetFloor(floorIdx)} }
+        expandFloor={(e)=>{this.expandFloor(e, floorIdx)} }
+      />) ;
     }
     return domList;
   }

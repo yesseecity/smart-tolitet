@@ -15,37 +15,40 @@ export class Floor extends React.Component {
   componentDidUpdate() {
     // console.log('Lifecycle - componentDidUpdate');
   }
-  onMouseEnter (e) {
+  resetFloor(e) {
     e.stopPropagation();
-    console.group('onMouseEnter');
-    console.log('onMouseEnter',e );
-    console.log(e.target)
-    console.log(e.eventPhase)
-    console.groupEnd('onMouseEnter');
-    // this.props.mouseHover(e)
+    e.preventDefault();
+    this.props.resetFloor(e);
   }
-
   render() {
     // console.log('Lifecycle - render')
     return (
-      <div className="floor" id={"floor-"+ this.props.id} ref={this.floorDom} >
+      <div className="floor" id={"floor-"+ this.props.id} ref={this.floorDom}
+        onClick={(e)=>{ this.props.expandFloor(e)} }
+        >
           {/* <img src="./imgs/floor-12.jpg" alt="{this.props.id+’地圖’}"/> */}
-          <div className="toilet-ladies alert">
-            <svg height="210" width="200">
-              <circle cx="41" cy="-1" r="40" stroke="red" strokeWidth="2" fillOpacity="0.0" />
-              <circle cx="42" cy="-2" r="24" stroke="red" strokeWidth="2" fillOpacity="0.0" />
-              <line x1="0"  y1="1"  x2="18" y2="1"  stroke="red" strokeWidth="2" />
-              <line x1="41" x2="41" y1="21" y2="38" stroke="red" strokeWidth="2"></line>
+          <div className="toilet-ladies ">
+            <svg>
+              <circle cx="50" cy="-1" r="47" stroke="red" strokeWidth="2" fillOpacity="0.0" />
+              <circle cx="49" cy="-2" r="26" stroke="red" strokeWidth="2" fillOpacity="0.0" />
+              <line x1="3"  y1="1"  x2="22" y2="1"  stroke="red" strokeWidth="2" />
+              <line x1="51" x2="51" y1="25" y2="45" stroke="red" strokeWidth="2"></line>
             </svg>
           </div>
-          <div className="toilet-gentlemen ">
-            <svg height="210" width="200">
-              <circle cx="0" cy="-11" r="40" stroke="red" strokeWidth="2" fillOpacity="0.0" />
-              <line x1="0" y1="1" x2="38" y2="1" stroke="red" strokeWidth="2"/>
-              <line x1="1" y1="0" x2="1" y2="29" stroke="red" strokeWidth="2"/>
+          <div className="toilet-gentlemen alert">
+            <svg>
+              <circle cx="3" cy="-11" r="45" stroke="red" strokeWidth="2" fillOpacity="0.0" />
+              <line x1="0" y1="1" x2="46" y2="1" stroke="red" strokeWidth="2"/>
+              <line x1="1" y1="0" x2="1" y2="33" stroke="red" strokeWidth="2"/>
             </svg>
           </div>
           <img src="./imgs/floor-12.png" alt="{this.props.id+’地圖’}"/>
+          <div className="cross" onClick={(e)=>{ this.resetFloor(e) }}>
+            <svg>
+              <line x1="0" y1="0" x2="36" y2="36" stroke="black" strokeWidth="2"/>
+              <line x1="0" y1="36" x2="36" y2="0" stroke="black" strokeWidth="2"/>
+            </svg>
+          </div>
       </div>
     );
   }
