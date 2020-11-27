@@ -8,24 +8,13 @@ import {
 
 // components
 import {Main} from './components/main/main.jsx';
-import {FunctionName} from './component-func-sample.jsx';
-import {YourCalss} from './component-class-sample.jsx';
 
-// context
-import {MemberContext, defaultMember} from './context/member.jsx';
-import {ThemeContext} from './context/theme.jsx';
 
 function Index(props) {
   return (
   <React.StrictMode>
     <Router>
       <Switch>
-        <Route path="/class" exact>
-          <YourCalss/>
-        </Route>
-        <Route path="/func" exact>
-          <FunctionName />
-        </Route>
         <Route path="/">
           <Main/>
         </Route>
