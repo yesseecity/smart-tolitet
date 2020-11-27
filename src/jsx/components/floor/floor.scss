@@ -6,6 +6,10 @@ $img-width: 600px;
     }
 }
 
+.hidden {
+    display: none;
+}
+
 .floor {
     width: $img-width;
     border: 1px solid transparent;
@@ -69,10 +73,12 @@ img {
     top: 234px;
     overflow: hidden;
     opacity: 0.0;
+    display: none;
     &.alert{
         animation-name: twinkling;
         animation-duration: 0.5s;
         animation-iteration-count: infinite;
+        display: initial;
     }
     svg {
         height: 210px;
@@ -88,10 +94,12 @@ img {
     left: 502px;
     overflow: hidden;
     opacity: 0.0;
+    display: none;
     &.alert{
         animation-name: twinkling;
         animation-duration: 0.5s;
         animation-iteration-count: infinite;
+        display: initial;
     }
     svg {
         height: 210px;
